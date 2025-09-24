@@ -15,14 +15,12 @@ function basePath($path = '') {
  * @param string $name
  * @return void 
  */
-function loadView($name){
+function loadView($name, $data = []){
 
     $viewPath = basePath("views/{$name}.view.php");
     
-    // inspect($name);
-    // inspect($viewPath);
-
     if(file_exists($viewPath)){
+        extract($data);
         require $viewPath;
         } else {
             echo "View '{$name} not found'";
@@ -35,7 +33,7 @@ function loadView($name){
  * @param string $name
  * @return void 
  */
-function loadPartial($name)
+function loadPartial($name,)
     {
     $partialPath = basePath("views/partials/{$name}.php");
 
@@ -78,3 +76,12 @@ function inspectAndDie($value)
     echo '</pre>';
     die();
 } 
+
+/**
+ * format salary
+ * @param string $salary
+ * return string Formatted Salary
+ */
+function formatSalary($salary){
+    return '$'. number_format(floatval($salary));
+}
