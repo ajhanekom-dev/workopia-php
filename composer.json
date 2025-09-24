@@ -1,0 +1,16 @@
+{
+    "name":"ajhanekom-dev/workopia-php",
+    "description" : "Job listing application",
+    "authors":[
+        {
+        "name": "Arno Hanekom",
+        "email": "ajhanekom@gmail.com"
+        }
+    ],
+    "autoload":{
+        "psr-4":{
+            "Framework\\": "Framework/",
+            "App\\": "App/"
+        }
+    }
+}
