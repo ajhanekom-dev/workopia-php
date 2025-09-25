@@ -3,6 +3,7 @@
 namespace App\controllers;
 
 use Framework\Database;
+use Framework\Validation;
 
 class ListingController{
 
@@ -16,6 +17,8 @@ class ListingController{
 
     public function index()
     {
+
+
     $listings = $this->db->query('SELECT * FROM listings')->fetchAll();
 
     loadView('listings/index', [
@@ -27,7 +30,11 @@ class ListingController{
 
     loadView('listings/create');
     }
-
+/**
+ * Show a single listing
+ * @param array $params
+ * @return void
+ */
     public function show($params)
     {
         $id = $params['id'] ?? '';
@@ -48,5 +55,90 @@ if(!$listing){
 loadView('listings/show', [
     'listing' => $listing
 ]);
+}
+
+/**
+ * Store data in database
+ * 
+ * @return void
+ * 
+ * */
+
+public function store(){
+    $allowedFields = ['title', 'description','salary','tags','company','address','city','state','phone', 'email', 'requirements','benefits'];
+
+    $newListingData = array_intersect_key($_POST, array_flip($allowedFields));
+
+    $newListingData['user_id'] = 1;
+
+    $newListingData = array_map('sanitize', $newListingData);
+
+    $requiredFields = ['title','description','email','city','state','tags','salary'];
+
+    $errors = [];
+
+    foreach($requiredFields as $field) {
+        if (empty($newListingData[$field]) || !Validation::string($newListingData[$field])) 
+            {$errors[$field] = ucfirst($field).' is required';
+    }
+    }
+if(!empty($errors)){
+    //Reload view with errors and not commit to database
+    loadView('listings/create', ['errors'=> $errors, 'listing'=> $newListingData
+    ]);
+} else {
+    //Submit Data
+    // echo 'Data successfully loaded';
+
+    $fields =[];
+    foreach($newListingData as $field => $value ) {
+        $fields[] = $field;
+    }
+    $fields = implode(',',$fields);
+
+    $values=[];
+
+    foreach($newListingData as $field => $value){
+        //Convert empty strings to null
+     if($value = ''){
+        $newListingData[$field] = null;
+     }
+     $values[] = ':' . $field;
+         
+    }
+    $values = implode(',',$values);
+
+    $query = "INSERT INTO listings ({$fields}) VALUES ({$values})";
+
+  $this-> db->query($query, $newListingData);
+
+  redirect('/listings');
+  exit;
+}
+}
+/**
+ * Will delete a listing
+ * 
+ * @param array $params
+ * @return void
+ */
+
+public function destroy($params){
+    $id = $params['id'];
+
+    $params = [
+    'id' => $id
+    ];
+
+    $listing = $this->db->query('SELECT * FROM listings WHERE id = :id', $params)->fetch();
+
+if(!$listing) {
+    ErrorController::notFound('Listing not found');
+    return;
+}
+// inspectAndDie($listing);
+$this->db->query('DELETE FROM listings WHERE id=:id',$params);
+
+redirect('/listings');
 }
 }
