@@ -1,24 +1,17 @@
 <?php
-
-session_start();
-
 require __DIR__ . '/../vendor/autoload.php';
-require '../helpers.php';
 
 use Framework\Router;
-use Framework\Database;
+use Framework\Session;
 
+Session::start();
+
+require '../helpers.php';
 
 //Instantiate the route
 $router = new Router();
 
-$config = require basePath('config/db.php');
-
-$db = new Database($config);
-
-
-
-//Instantiate the routere
+//Instantiate the router
 $router = new Router();
 
 //Get routes
