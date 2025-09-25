@@ -4,6 +4,8 @@ namespace App\controllers;
 
 use Framework\Database;
 use Framework\Validation;
+use Framework\Session;
+use Framework\Authorization;
 
 class ListingController{
 
@@ -19,7 +21,7 @@ class ListingController{
     {
 
 
-    $listings = $this->db->query('SELECT * FROM listings')->fetchAll();
+    $listings = $this->db->query('SELECT * FROM listings ORDER BY created_at DESC')->fetchAll();
 
     loadView('listings/index', [
         'listings' => $listings
@@ -69,7 +71,7 @@ public function store(){
 
     $newListingData = array_intersect_key($_POST, array_flip($allowedFields));
 
-    $newListingData['user_id'] = 1;
+    $newListingData['user_id'] = Session::get('user')['id'];
 
     $newListingData = array_map('sanitize', $newListingData);
 
@@ -132,9 +134,17 @@ public function destroy($params){
 
     $listing = $this->db->query('SELECT * FROM listings WHERE id = :id', $params)->fetch();
 
+    //Check if listing exists
 if(!$listing) {
     ErrorController::notFound('Listing not found');
     return;
+}
+
+//Authorization
+if(!Authorization::isOwner($listing['user_id'])){
+    $_SESSION['error_message'] = 'You are not authorised to delete this listing';
+    redirect('/listings/'. $listing['id']);
+
 }
 // inspectAndDie($listing);
 $this->db->query('DELETE FROM listings WHERE id=:id',$params);
