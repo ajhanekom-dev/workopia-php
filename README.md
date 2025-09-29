@@ -1,104 +1,173 @@
-### Setup & Installation
+# Workopia PHP
 
-## Current Environment
-- Windows 11
-- Ubunto 20.4
-- WSL 2
-- VsCode 1.104.1
-- PhPStorm (alternate IDE)
-- git
+A job listing web application built with PHP and MySQL, featuring user authentication, job posting, and search functionality.
 
-## Runtime Environment
-- WSL 2: Ubuntu-20.04 
-- VsCode IDE
+## Features
 
+- **Job Management**: Create, edit, delete, and view job listings
+- **User Authentication**: Secure registration and login system
+- **Search Functionality**: Search jobs by keywords, location, company
+- **Authorization**: Users can only manage their own listings
+- **Flash Messages**: Success and error notifications
+- **Responsive Design**: Mobile-friendly interface
 
-## Packages to Install
-# VsCode additional packages
-- php intelephense (code hinting, param handling, autocomplete)
-- php DocBlocker (multiline comments select for documenting code)
+## Architecture
 
-# homebrew Package Manager
-~bash
-- /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+- **Custom MVC Framework**: Built with a lightweight PHP framework
+- **Database**: MySQL with PDO
+- **Frontend**: PHP templates with reusable partials
+- **Session Management**: Secure user sessions
+- **Input Validation**: Data sanitization and validation
 
-#php
-~bash
-- brew install php
-- php -v  (this will return PHP 8.4.12 (cli) -- confirms php install succesful) 
-- brew upgrade php (only if your php version is not at least version 8.0.0 thats installed, this will install latest version)
+## Database Schema
 
-#create project directory
-~bash
-- mkdir workopia
-- cd workopia
-- mkdir public
-- mkdir views
+- **users**: id, name, email, password, city, state, created_at
+- **listings**: id, user_id, title, description, salary, company, address, city, state, phone, email, requirements, benefits, tags, created_at
 
-# MySQL 
-~bash
-- sudo apt update
-- brew install mysql
-- brew mysql -V (this will confirm installation succesful ver 9.4.0)
-- brew services start mysql
-- mysql_secure_installation (secure your installation)
-- mysql -u root -p 
+## Quick Start with Docker (Recommended)
 
-~mysql
-- CREATE USER 'someuser'@'localhost' IDENTIFIED BY 'somepassword';
-- GRANT ALL PRIVILEGES ON * . * TO 'someuser'@'localhost';
-- FLUSH PRIVILEGES;
-- SELECT User, Host FROM mysql.user;   (show users)
-- CREATE DATABASE MYDB; (create project mysql database)
-- SHOW DATABASES (confirm your project DB has been created)
-- USE MYDB;
--CREATE TABLE users(
-id INT AUTO_INCREMENT,
-   id VARCHAR(100) NOT NULL,
-   title VARCHAR(100) NOT NULL,
-   description VARCHAR(255) NOT NULL,
-   salary VARCHAR(20) NOT NULL,
-   location VARCHAR(100) NOT NULL,
-   tags VARCHAR(100) NOT NULL,
-   is_admin TINYINT(1),
-   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-);
+The easiest way to run this project is using Docker. No local PHP or MySQL installation required!
 
-#mysql workbench
-- URL https://dev.mysql.com/downloads/workbench/
-- download & install mysql-workbench-community-8.0.43.msi (windows version for GUI)
+### Prerequisites
+- [Docker](https://www.docker.com/get-started)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
-##git commit code to github repository
-create file .gitignore in project home DIR
+### Run the Application
 
-~txt (add these into .gitignore file)
-/vendor
-/node_modules
-/config/db.php
-.env 
-.vscode  
-.DS_Store
+```bash
+# Clone the repository
+git clone <repository-url>
+cd workopia-php
 
-~bash
-- git init
-- git add .
-- git commit -m 'Initial Commit to Repository started home view'
+# Build and start all services
+docker-compose up --build
 
-##from github (https://github.com/ajhanekom-dev/)
-create repository workopia-php
-make private
+# Access the application
+# - Workopia App: http://localhost:8080
+# - phpMyAdmin: http://localhost:8081
+```
 
- ~bash
- - git remote add origin https://github.com/ajhanekom-dev/workopia-php.git
-- git branch -M main 
-- git push -u origin main 
+### Stop the Application
 
-#hereafter all commits to github
-- git add .
-- git commit -m 'comments to add in'
-- git push
+```bash
+docker-compose down
+```
 
-#start Host server
-~bash
-cd 'projectDIR'/public
-- php -S localhost:8000 -t public 
+### What's Included
+
+- **PHP 8.2 with Apache** - Web server
+- **MySQL 8.0** - Database with automatic data import
+- **phpMyAdmin** - Web-based database management
+
+### Database Access
+
+- **Host**: localhost
+- **Port**: 3307 (external), 3306 (internal)
+- **Database**: workopia
+- **Username**: workopia_user
+- **Password**: workopia_password
+
+## Manual Installation (Alternative)
+
+If you prefer to run without Docker:
+
+### Prerequisites
+
+- PHP 8.0+
+- MySQL 5.7+/MariaDB
+- Composer
+
+### Installation Steps
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd workopia-php
+   ```
+
+2. **Install dependencies**
+   ```bash
+   composer install
+   ```
+
+3. **Database setup**
+   ```bash
+   # Create database
+   mysql -u root -p
+   CREATE DATABASE workopia;
+
+   # Import database dump
+   mysql -u root -p workopia < "workopia SQL Database Dump.sql"
+   ```
+
+4. **Configure database**
+   ```php
+   // Create config/db.php
+   <?php
+   return [
+       'host' => 'localhost',
+       'port' => 3306,
+       'dbname' => 'workopia',
+       'username' => 'your_username',
+       'password' => 'your_password'
+   ];
+   ```
+
+5. **Start the server**
+   ```bash
+   cd public
+   php -S localhost:8000
+   ```
+
+6. **Access the application**
+   - Open http://localhost:8000
+
+## Project Structure
+
+```
+workopia-php/
+├── App/
+│   ├── controllers/     # Application controllers
+│   └── views/          # View templates
+├── Framework/          # Custom framework components
+│   ├── Database.php    # Database wrapper
+│   ├── Router.php      # URL routing
+│   ├── Session.php     # Session management
+│   └── Validation.php  # Input validation
+├── public/             # Web root
+│   └── index.php       # Entry point
+├── config/             # Configuration files
+├── routes.php          # Route definitions
+├── helpers.php         # Helper functions
+└── docker-compose.yml  # Docker configuration
+```
+
+## Development
+
+### File Structure
+- **Controllers**: Handle HTTP requests and business logic
+- **Views**: PHP templates for rendering HTML
+- **Framework**: Core components (Router, Database, Session, etc.)
+- **Helpers**: Utility functions used throughout the app
+
+### Key Routes
+- `GET /` - Homepage with recent listings
+- `GET /listings` - All job listings
+- `GET /listings/create` - Create new listing (auth required)
+- `GET /listings/{id}` - View specific listing
+- `POST /listings` - Store new listing
+- `GET /auth/register` - Registration form
+- `POST /auth/login` - User authentication
+
+## License
+
+This project is part of a PHP learning curriculum.
+
+## Author
+
+**Arno Hanekom**
+- Email: ajhanekom@gmail.com
+
+---
+
+**Note**: The Docker setup handles all configuration automatically. For manual installation, ensure you create the `config/db.php` file with your database credentials. 

@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # PHP Application
+  app:
+    build: .
+    container_name: workopia-app
+    ports:
+      - "8080:80"
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=workopia
+      - DB_USER=workopia_user
+      - DB_PASSWORD=workopia_password
+    volumes:
+      - .:/var/www/html
+      - ./config:/var/www/html/config
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - workopia-network
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: workopia-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: workopia
+      MYSQL_USER: workopia_user
+      MYSQL_PASSWORD: workopia_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./workopia SQL Database Dump.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - workopia-network
+
+  # phpMyAdmin (Optional - for database management)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: workopia-phpmyadmin
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: workopia_user
+      PMA_PASSWORD: workopia_password
+    depends_on:
+      - mysql
+    networks:
+      - workopia-network
+
+volumes:
+  mysql_data:
+
+networks:
+  workopia-network:
+    driver: bridge

@@ -110,7 +110,7 @@ class Router{
                 $match = true;
 
                 //Check if the number of segments matches
-                if(count($uriSegments) == count($routeSegments) && strtoupper($route['method'] ===$requestMethod)) {
+                if(count($uriSegments) == count($routeSegments) && strtoupper($route['method']) === $requestMethod) {
                 $params = [];
 
                 $match = true;
